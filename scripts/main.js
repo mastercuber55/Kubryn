@@ -8,7 +8,9 @@ import {
 import world from "./scenes/world.mjs"
 
 let { canvas } = init();
-
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+canvas = init().canvas
 initKeys();
 
 let loop = GameLoop({
