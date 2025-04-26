@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 import {
   getAuth,
   signInAnonymously,
@@ -25,8 +25,13 @@ const auth = getAuth();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    alert("Logged In");
+    localStorage.setItem("uid", user.uid)
   } else {
     signInAnonymously(auth);
   }
 });
+
+const db = getDatabase(app)
+const uid = localStorage.getItem("uid")
+
+export { db, uid }
