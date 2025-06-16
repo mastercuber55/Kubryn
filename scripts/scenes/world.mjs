@@ -5,10 +5,9 @@ import { db, uid } from "../firebase.mjs";
 import {
   ref,
   set,
-  // doesnt work apparently, like it doesnt even trigger. so I just use onChildChanged.
-  onValue,
   onChildChanged,
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+import { joystick } from "../main.mjs"
 
 let player = Sprite({
   x: 100,
@@ -21,19 +20,53 @@ let player = Sprite({
   update: function (dt) {
     const speed = 400;
 
+    // storing previous values.
     const x = this.x;
     const y = this.y;
-    // storing previous values.
 
-    if (keyPressed("w")) this.y -= speed * dt;
-    if (keyPressed("s")) this.y += speed * dt;
-    if (keyPressed("a")) this.x -= speed * dt;
-    if (keyPressed("d")) this.x += speed * dt;
+
+    // For PC
+    if (keyPressed("w") || keyPressed("2")) this.y -= speed * dt;
+    if (keyPressed("s") || keyPressed("8")) this.y += speed * dt;
+    if (keyPressed("a") || keyPressed("4")) this.x -= speed * dt;
+    if (keyPressed("d") || keyPressed("6")) this.x += speed * dt;
+    
+    // Lets check direction for phone
+    const joyDir = joystick.GetDir()
+
+    switch (joyDir) {
+      case "N":
+      case "NE":
+      case "NW":
+        this.y -= speed * dt;
+        break;
+
+      case "S":
+      case "SE":
+      case "SW":
+        this.y += speed * dt;
+        break;
+    }
+
+    switch (joyDir) {
+      case "E":
+      case "NE":
+      case "SE":
+        this.x += speed * dt;
+        break;
+
+      case "W":
+      case "NW":
+      case "SW":
+        this.x -= speed * dt;
+        break;
+    }
+
 
     // syncing position only if position has changed.
     if (x != this.x || y != this.y) this.syncPos();
   },
-
+  
   syncPos: function () {
     set(ref(db, `players/${uid}`), { x: this.x, y: this.y });
   },
@@ -66,11 +99,6 @@ onChildChanged(ref(db, "players"), (ss) => {
 const world = Scene({
   id: "world",
   objects: [player],
-
-  // render() {
-  //   Object.values(players).forEach((plr) => plr.render());
-  //   player.render();
-  // },
 });
 
 export default world;
